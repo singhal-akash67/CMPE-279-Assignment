@@ -1,1 +1,6 @@
 # CMPE-279-Assignment
+
+Team Members
+
+NAME - AKASH SINGHAL(015257203).  
+NAME - NAREN SULEGAI
