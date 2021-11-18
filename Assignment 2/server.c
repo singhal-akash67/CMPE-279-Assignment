@@ -17,6 +17,29 @@ int main(int argc, char const *argv[])
     char buffer[1024] = {0};
     char *hello = "Hello from server";
 
+    if (argc == 2)
+    {
+        struct passwd *user = getpwnam("nobody");
+
+         if(user == NULL) {
+                printf("User does not exist");
+                exit(EXIT_FAILURE);
+        }
+
+        if(setuid(user->pw_uid) != 0) {
+                printf("Drop privileges did not occur");
+                exit(EXIT_FAILURE);
+        }
+
+        new_socket = atoi(argv[1]);
+        valread = read( new_socket , buffer, 1024);
+        printf("Read %d bytes: %s\n", valread, buffer);
+        send(new_socket, hello , strlen(hello) , 0 );
+        printf("Hello message sent\n");
+        return 0;
+        
+    }
+
     // Creating socket file descriptor
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
     {
@@ -59,22 +82,12 @@ int main(int argc, char const *argv[])
      pid_t wpid;
 
      if(processId == 0) {
-        struct passwd *user = getpwnam("nobody");
-
-         if(user == NULL) {
-                printf("User does not exist");
-                exit(EXIT_FAILURE);
-        }
-
-        if(setuid(user->pw_uid) != 0) {
-                printf("Drop privileges did not occur");
-                exit(EXIT_FAILURE);
-        }
-
-        valread = read(new_socket, buffer, 1024);
-        printf("Read %d bytes: %s\n", valread, buffer);
-        send(new_socket, hello, strlen(hello), 0);
-        printf("Hello message sent\n");
+        char new_socket_str[50];
+        sprintf(new_socket_str, "%d", new_socket);
+        char file[50];
+        strcpy(file, argv[0]);
+        char *new_argv[] = {file, new_socket_str, NULL};
+        execvp(argv[0], new_argv);
      } else if(processId > 0) {
               int status = 0;
 
